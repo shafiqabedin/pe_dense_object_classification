@@ -44,25 +44,6 @@ def get_label_dice_coefficient_function(label_index):
     f.__setattr__('__name__', 'label_{0}_dice_coef'.format(label_index))
     return f
 
-
-def multislice_dice_coef(y_true, y_pred, smooth=0.):
-    y_true = y_true[..., 4]
-    y_true = K.batch_flatten(y_true)
-    y_true = K.cast(y_true, dtype='int32')
-    y_true = K.one_hot(y_true, 2)
-
-    y_true = y_true[..., 1]
-
-    y_pred = y_pred[..., 1]
-    y_pred = K.batch_flatten(y_pred)
-
-    intersection = K.sum(y_true * y_pred, 1) + smooth
-    denom = K.sum(y_true ** 2, 1) + K.sum(y_pred ** 2, 1) + smooth
-    dice = (2. * intersection) / denom
-
-    return K.mean(dice)
-
-
 def multislice_dice_loss(y_true, y_pred):
     return 1. - multislice_dice_coef(y_true, y_pred)
 
@@ -138,19 +119,6 @@ def ignore_unknown_xentropy(ytrue, ypred):
     return (1 - ytrue[:, :, 0]) * categorical_crossentropy(ytrue, ypred)
 
 
-def continuous_dice_loss(y_true, y_pred):
-    y_true = y_true[..., 4]
-    y_true = K.batch_flatten(y_true)
-    y_true = K.cast(y_true, dtype='int32')
-    y_true = K.one_hot(y_true, 2)
-
-    y_true = y_true[..., 1]
-    y_pred = y_pred[..., 1]
-
-    intersection = K.sum(y_true * y_pred, 1)
-    denom = K.sum(y_true ** 2, 1) + K.sum(y_pred ** 2, 1)
-    dice = 1. - (2. * intersection) / denom
-    return K.mean(dice)
 
 
 dice_coef = dice_coefficient
